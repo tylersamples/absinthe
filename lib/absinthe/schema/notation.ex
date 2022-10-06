@@ -1974,14 +1974,23 @@ defmodule Absinthe.Schema.Notation do
     ref
   end
 
-  defp default_name(Schema.FieldDefinition, identifier) do
+  defp default_name(Schema.FieldDefinition, identifier) when is_atom(identifier) do
     identifier
     |> Atom.to_string()
   end
 
-  defp default_name(_, identifier) do
+  defp default_name(Schema.FieldDefinition, identifier) when is_binary(identifier) do
+    identifier
+  end
+
+  defp default_name(_, identifier)  when is_atom(identifier) do
     identifier
     |> Atom.to_string()
+    |> Absinthe.Utils.camelize()
+  end
+
+  defp default_name(_, identifier) when is_binary(identifier) do
+    identifier
     |> Absinthe.Utils.camelize()
   end
 

@@ -82,7 +82,7 @@ defmodule Absinthe.Type.Union do
         nil ->
           nil
 
-        ident when is_atom(ident) ->
+        ident when is_atom(ident) or is_binary(ident) ->
           if opts[:lookup] do
             Absinthe.Schema.lookup_type(schema, ident)
           else

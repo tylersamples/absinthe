@@ -555,10 +555,7 @@ defmodule Absinthe.Schema do
 
   def lookup_type(schema, type, options \\ [unwrap: true]) do
     cond do
-      is_atom(type) ->
-        schema.__absinthe_lookup__(type)
-
-      is_binary(type) ->
+      is_atom(type) or is_binary(type) ->
         schema.__absinthe_lookup__(type)
 
       Type.wrapped?(type) ->
@@ -658,7 +655,7 @@ defmodule Absinthe.Schema do
   List all implementors of an interface on a schema
   """
   @spec implementors(t, Type.identifier_t() | Type.Interface.t()) :: [Type.Object.t()]
-  def implementors(schema, ident) when is_atom(ident) do
+  def implementors(schema, ident) when is_atom(ident) or is_binary(ident) do
     schema.__absinthe_interface_implementors__
     |> Map.get(ident, [])
     |> Enum.map(&lookup_type(schema, &1))

@@ -23,7 +23,7 @@ defmodule Absinthe.Blueprint.TypeReference do
     value
   end
 
-  def unwrap(value) when is_atom(value), do: value
+  def unwrap(value) when is_atom(value) or is_binary(value), do: value
 
   def unwrap(%struct{of_type: inner}) when struct in @wrappers do
     unwrap(inner)
@@ -61,11 +61,11 @@ defmodule Absinthe.Blueprint.TypeReference do
     Enum.find(schema.type_definitions, &(&1.name == name)).identifier
   end
 
-  def to_type(%__MODULE__.Identifier{id: id}, _) when is_atom(id) do
+  def to_type(%__MODULE__.Identifier{id: id}, _) when is_atom(id) or is_binary(id) do
     id
   end
 
-  def to_type(value, _) when is_atom(value) do
+  def to_type(value, _) when is_atom(value) or is_binary(value) do
     value
   end
 end

@@ -148,7 +148,7 @@ defmodule Absinthe.Phase.Schema.MarkReferenced do
     referenced_types(Map.fetch!(schema, ref.name), schema, acc)
   end
 
-  defp referenced_types(type, schema, acc) when is_atom(type) and type != nil do
+  defp referenced_types(type, schema, acc) when is_atom(type) or is_binary(type) and type != nil do
     referenced_types(Map.fetch!(schema, type), schema, acc)
   end
 end

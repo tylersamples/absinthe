@@ -114,7 +114,7 @@ defmodule Absinthe.Schema.Notation.SDL.Render do
 
   defp render(%Blueprint.Schema.UnionTypeDefinition{} = union_type, type_definitions) do
     Enum.map(union_type.types, fn
-      identifier when is_atom(identifier) ->
+      identifier when is_atom(identifier) or is_binary(identifier) ->
         render(%Blueprint.TypeReference.Identifier{id: identifier}, type_definitions)
 
       %Blueprint.TypeReference.Name{} = ref ->
@@ -246,7 +246,7 @@ defmodule Absinthe.Schema.Notation.SDL.Render do
     raise "Unexpected nil"
   end
 
-  defp render(identifier, type_definitions) when is_atom(identifier) do
+  defp render(identifier, type_definitions) when is_atom(identifier) or is_binary(identifier) do
     render(%Blueprint.TypeReference.Identifier{id: identifier}, type_definitions)
   end
 
