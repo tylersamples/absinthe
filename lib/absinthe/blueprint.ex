@@ -19,6 +19,7 @@ defmodule Absinthe.Blueprint do
             initial_phases: [],
             # Added by phases
             telemetry: %{},
+            telemetry_compile: %{},
             flags: %{},
             errors: [],
             input: nil,

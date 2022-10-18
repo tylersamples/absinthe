@@ -379,7 +379,7 @@ defmodule Absinthe.Schema do
 
     pipeline =
       env.module
-      |> Absinthe.Pipeline.for_schema(prototype_schema: prototype_schema)
+      |> Absinthe.Pipeline.for_schema(prototype_schema: prototype_schema, base_schema: env.module)
       |> apply_modifiers(env.module)
 
     env.module.__absinthe_blueprint__

@@ -21,7 +21,7 @@ defmodule Absinthe.Phase.Schema.Hydrate do
 
   @impl Absinthe.Phase
   def run(blueprint, opts \\ []) do
-    {:ok, schema} = Keyword.fetch(opts, :schema)
+    {:ok, schema} = Keyword.fetch(opts, :base_schema)
     hydrator = Keyword.get(opts, :hydrator, __MODULE__)
     blueprint = Blueprint.prewalk(blueprint, &handle_node(&1, [], schema, hydrator))
     {:ok, blueprint}

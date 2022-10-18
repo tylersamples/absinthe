@@ -23,10 +23,11 @@ defmodule Absinthe.Phase.Schema do
   @spec run(Blueprint.t(), Keyword.t()) :: {:ok, Blueprint.t()}
   def run(input, options \\ []) do
     {input, schema} = apply_settings(input, Map.new(options))
+    base_schema = Keyword.fetch!(options, :base_schema)
 
     result =
       input
-      |> update_context(schema)
+      |> update_context(base_schema)
       |> Blueprint.prewalk(&handle_node(&1, schema, input.adapter))
 
     {:ok, result}
@@ -41,8 +42,11 @@ defmodule Absinthe.Phase.Schema do
   end
 
   defp apply_settings(input, options) do
+    schema_name = Map.get(options, :schema_name)
+    schema = :persistent_term.get({Datum.Schema.PersistentTerm, schema_name})
+
     adapter = Map.get(options, :adapter, Absinthe.Adapter.LanguageConventions)
-    {%{input | schema: options.schema, adapter: adapter}, options.schema}
+    {%{schema.blueprint | schema: options.schema, adapter: adapter}, schema}
   end
 
   defp update_context(input, nil), do: input
@@ -94,7 +98,7 @@ defmodule Absinthe.Phase.Schema do
          schema,
          _adapter
        ) do
-    %{node | schema_node: Absinthe.Schema.lookup_type(schema, op_type)}
+    %{node | schema_node: Absinthe.Blueprint.Schema.lookup_type(schema, op_type)}
   end
 
   defp set_schema_node(
@@ -185,13 +189,13 @@ defmodule Absinthe.Phase.Schema do
   defp set_schema_node(%Blueprint.Input.Value{} = node, parent, schema, _) do
     case parent.schema_node do
       %Type.Argument{type: type} ->
-        %{node | schema_node: type |> Type.expand(schema)}
+        %{node | schema_node: expand_type(type, schema)}
 
       %Absinthe.Type.Field{type: type} ->
-        %{node | schema_node: type |> Type.expand(schema)}
+        %{node | schema_node: expand_type(type, schema)}
 
       type ->
-        %{node | schema_node: type |> Type.expand(schema)}
+        %{node | schema_node: expand_type(type, schema)}
     end
   end
 
@@ -220,9 +224,22 @@ defmodule Absinthe.Phase.Schema do
   # Given a name, lookup a schema directive
   @spec find_schema_directive(String.t(), Absinthe.Schema.t(), Absinthe.Adapter.t()) ::
           nil | Type.Directive.t()
-  defp find_schema_directive(name, schema, adapter) do
+  defp find_schema_directive(name, schema, adapter) when is_atom(schema) do
     internal_name = adapter.to_internal_name(name, :directive)
     schema.__absinthe_directive__(internal_name)
+  end
+
+  defp find_schema_directive(name, schema, adapter) do
+    internal_name = adapter.to_internal_name(name, :directive)
+    Map.get(schema.__absinthe_directive__, internal_name)
+  end
+
+  defp expand_type(type, schema) when is_atom(schema)  do
+    type |> Type.expand(schema)
+  end
+
+  defp expand_type(type, schema) do
+    Map.get(schema.__absinthe_type__, type)
   end
 
   # Given a schema type, lookup a child field definition
