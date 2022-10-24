@@ -41,7 +41,7 @@ defmodule Absinthe.Phase.Schema do
     {%{input | prototype_schema: schema, adapter: adapter}, schema}
   end
 
-  defp apply_settings(input, options) do
+  defp apply_settings(_input, options) do
     schema_name = Map.get(options, :schema_name)
     schema = :persistent_term.get({Datum.Schema.PersistentTerm, schema_name})
 
